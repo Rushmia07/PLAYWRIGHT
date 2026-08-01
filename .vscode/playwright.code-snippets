@@ -1,0 +1,55 @@
+{
+    "Playwright test (with login)": {
+        "scope": "javascript",
+        "prefix": "pwtest",
+        "body": [
+            "test('$1', async ({ page }) => {",
+            "    await page.goto('https://www.saucedemo.com/');",
+            "",
+            "    const loginPage = new LoginPage(page);",
+            "    await loginPage.ValidloginToApplication();",
+            "    await expect(page).toHaveURL(/inventory.html/);",
+            "    await expect(page.locator('$2')).$3;",
+            "",
+            "});"
+        ],
+        "description": "Full test: login, then one check. Tab between the blanks."
+    },
+
+    "Playwright test (short, uses beforeEach)": {
+        "scope": "javascript",
+        "prefix": "pwshort",
+        "body": [
+            "test('$1', async ({ page }) => {",
+            "    await expect(page.locator('$2')).$3;",
+            "});"
+        ],
+        "description": "Short test for a file that already has a beforeEach login."
+    },
+
+    "Playwright beforeEach login": {
+        "scope": "javascript",
+        "prefix": "pwbefore",
+        "body": [
+            "test.beforeEach(async ({ page }) => {",
+            "    await page.goto('https://www.saucedemo.com/');",
+            "",
+            "    const loginPage = new LoginPage(page);",
+            "    await loginPage.ValidloginToApplication();",
+            "    await expect(page).toHaveURL(/inventory.html/);",
+            "});"
+        ],
+        "description": "Runs the login before every test in the file."
+    },
+
+    "Playwright file header": {
+        "scope": "javascript",
+        "prefix": "pwhead",
+        "body": [
+            "const { test, expect } = require('@playwright/test');",
+            "const LoginPage = require('../playwright/pages/login-page');",
+            "const HomePage = require('../playwright/pages/home-page');"
+        ],
+        "description": "The three require lines at the top of a spec file."
+    }
+}
