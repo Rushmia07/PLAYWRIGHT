@@ -14,7 +14,36 @@ async ValidloginToApplication()
     await this.page.click(this.loginbutton)
 
 }
+async problemUserValidloginToApplication()
+{
+    await this.page.fill(this.username,"problem_user")
+    await this.page.fill(this.password,"secret_sauce")
+    await this.page.click(this.loginbutton)
+    
+}
+async errorUserValidloginToApplication()
+{
+    await this.page.fill(this.username,"error_user")
+    await this.page.fill(this.password,"secret_sauce")
+    await this.page.click(this.loginbutton)
+    
 
+}
+async visualUserValidloginToApplication()
+{
+    await this.page.fill(this.username,"visual_user")
+    await this.page.fill(this.password,"secret_sauce")
+    await this.page.click(this.loginbutton)
+    
+
+}
+async PerformanceUserValidloginToApplication()
+{
+    await this.page.fill(this.username,"performance_glitch_user")
+    await this.page.fill(this.password,"secret_sauce")
+    await this.page.click(this.loginbutton)
+
+}
 async InvalidloginToApplication()
 {
     await this.page.fill(this.username,"standard_user1")

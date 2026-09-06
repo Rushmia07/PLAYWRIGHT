@@ -1,0 +1,26 @@
+[33mcommit d594a331dc58a36f70ba243cf5904425d4f96d65[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Rushmia07 <qa@tulip-tech.com>
+Date:   Mon Jul 20 22:20:02 2026 +0100
+
+    first commit
+
+[33mcommit 76dada394c5eaf23a1df0b309f3612ecd1a635bc[m
+Merge: 6b3f3ea 9e4c1ce
+Author: Rushmia07 <qa@tulip-tech.com>
+Date:   Mon Jul 20 21:59:32 2026 +0100
+
+    Merge remote-tracking branch 'origin/main'
+
+[33mcommit 6b3f3ea11fa1047058d322b503945db3414995e2[m
+Author: Rushmia07 <qa@tulip-tech.com>
+Date:   Mon Jul 20 21:48:29 2026 +0100
+
+    Add Playwright login tests with Page Object Model
+    
+    Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+
+[33mcommit 9e4c1ce656f16b4016466c7a6a6ccef9ddb86836[m
+Author: Rushmia Ahmed <134592496+Rushmia07@users.noreply.github.com>
+Date:   Mon Jul 20 21:35:25 2026 +0100
+
+    Initial commit

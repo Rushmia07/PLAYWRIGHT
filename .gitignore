@@ -6,3 +6,27 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+js-practice/
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Office lock files (e.g. ~$AUTOMATION-ROADMAP.xlsx while it's open in Excel)
+~$*
+
+# Scratch scripts used for one-off tasks during this project
+scratch_*.js
+
+# Docs / notes - not part of the automation project itself
+*.md
+*.xlsx
