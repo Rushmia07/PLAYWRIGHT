@@ -8,7 +8,7 @@ test('TC-01 verify the Products page heading', async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.ValidloginToApplication();          
     await expect(page).toHaveURL(/inventory.html/);
-    await expect(page.locator('.title')).toContainClass('Products');
+    await expect(page.locator('.title')).toContainText('Products');
 
 });
 
@@ -17,7 +17,7 @@ test('TC-02 verify the cart icon is displayed', async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.ValidloginToApplication();          
     await expect(page).toHaveURL(/inventory.html/);
-    await expect(page.locator('shopping_cart_link')).toBeVisible();
+    await expect(page.locator('.shopping_cart_link')).toBeVisible();
 
 });
 
@@ -26,7 +26,7 @@ test('TC-03 verify six products are listed', async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.ValidloginToApplication();          // FIXED: added the missing login call
     await expect(page).toHaveURL(/inventory.html/);
-    await expect(page.locator('inventory_item_name')).toHaveCount(6);
+    await expect(page.locator('.inventory_item_name')).toHaveCount(6);
 });
 
 test('TC-04 verify the first product is the Sauce Labs Backpack', async ({ page }) => {
@@ -34,7 +34,7 @@ test('TC-04 verify the first product is the Sauce Labs Backpack', async ({ page 
     const loginPage = new LoginPage(page);            
     await loginPage.ValidloginToApplication();          // FIXED: added the missing login call
     await expect(page).toHaveURL(/inventory.html/);
-    await expect(page.locator('inventory_item_name').first()).toHaveText('Sauce Labs Backpack')
+    await expect(page.locator('.inventory_item_name').first()).toHaveText('Sauce Labs Backpack')
 });
 
 
@@ -44,7 +44,7 @@ test('TC-05 verify every product has an image', async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    await expect(page.locator('.inventory_item_img')).toHaveCount(6);
+    await expect(page.locator('.inventory_item_img img')).toHaveCount(6);
 });
 
 test('TC-06 verify every product has a price', async ({ page }) => {
@@ -238,8 +238,9 @@ test('TC-19 verify every price matches the exact format $X.XX', async ({ page })
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
     const price=await page.locator('.inventory_item_price').all();
-    for(const prices of price){
-        await expect(prices).toMatch(/^\$\d+\.\d{2}$/)
+    for(const pri of price){
+        const text = await pri.textContent();
+        expect(text).toMatch(/^\$\d+\.\d{2}$/)
     }
     
 
@@ -255,7 +256,9 @@ test('TC-20 verify every Add to cart button is enabled', async ({ page }) => {
      await loginpage.ValidloginToApplication();
      await expect(page).toHaveURL(/inventory.html/);
      const add_to_cart=await page.locator('.btn_primary').all();
-     await expect(add_to_cart).toBeEnabled()
+     for(const button of add_to_cart){
+        await expect(button).toBeEnabled();
+     }
 });
 
 test('TC-21 verify no two product descriptions are identical', async ({ page }) => {
@@ -435,7 +438,7 @@ test('TC-31 verify the Add to cart buttons are in the same left-to-right order a
     const buttons=await page.locator('.btn_primary').all();
     for(let i=0;i<names.length;i++){
         const slug=names[i].toLowerCase().replace(/\s+/g,'-');
-        const dataTest=await buttons[i].getAttributec('data-test');
+        const dataTest=await buttons[i].getAttribute('data-test');
         expect(dataTest).toContain(slug);
     }
 });
