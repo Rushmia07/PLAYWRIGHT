@@ -570,10 +570,13 @@ test('TC-38 verify the first product can be added to cart using only the keyboar
     // needing to Tab through every element before it one at a time -
     // more reliable than counting Tab presses, since that count can
     // change if the page markup changes.
-    await page.locator('.btn_primary').first().focus();
-    await page.keyboard.press('Enter');
+    // await page.locator('.btn_primary').first().focus();
+    // await page.keyboard.press('Enter');
+    // await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
 
-    await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
+     await page.locator('.btn_primary').first().focus();
+     await page.keyboard.press('Enter');
+     await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
 });
 
 test('TC-39 verify hovering over a product name does not navigate away from the inventory page', async ({ page }) => {
@@ -585,9 +588,12 @@ test('TC-39 verify hovering over a product name does not navigate away from the 
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
 
-    await page.locator('.inventory_item_name').first().hover();
+    // await page.locator('.inventory_item_name').first().hover();
 
-    await expect(page).toHaveURL(/inventory.html/);
+    // await expect(page).toHaveURL(/inventory.html/);
+
+    await page.locator('.inventory_item_name ').first().hover();
+    await expect(page).toHaveURL(/inventory.html/)
 });
 
 test('TC-40 verify the inventory page produces no browser console errors on load', async ({ page }) => {
