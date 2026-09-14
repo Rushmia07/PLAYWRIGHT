@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const LoginPage = require('../playwright/pages/login-page');
+const CartPage = require('../playwright/pages/cart');
 
 // ============================================================
 //  THE ORDER EVERY TEST FOLLOWS
@@ -33,54 +34,26 @@ const LoginPage = require('../playwright/pages/login-page');
 test('TC-14 verify the cart badge shows 1 after adding one item', async ({ page }) => {
 
     await page.goto('https://www.saucedemo.com/');
-
     const loginPage = new LoginPage(page);
     await loginPage.ValidloginToApplication();
-
-    // Assert login success: user lands on the inventory page
     await expect(page).toHaveURL(/inventory.html/);
-
-    // FIXED: deleted 'const homePage = new HomePage(page);'
-    //        This file never imports HomePage (look at the top - only LoginPage),
-    //        so it crashed with "ReferenceError: HomePage is not defined".
-    //        Nothing used the line anyway.
-
-    await page.click("//button[@id='add-to-cart-sauce-labs-backpack']")
-
-    // FIXED: was toHaveCount(1) = "there is 1 badge on the page".
-    //        That would pass even if the badge showed 9.
-    //        toHaveText('1') = "the badge SAYS 1", which is what we mean.
-    await expect(page.locator('.shopping_cart_badge')).toHaveText('1')
+    const cartpage=new CartPage(page);
+    await cartpage.addToCart('sauce-labs-backpack');
+    await expect(cartpage.getCartBadge()).toHaveText('1')
 
 });
 
 
 test('TC-15 verify the button changes to Remove after adding an item', async ({ page }) => {
-    // setup: log in
-    // action: click Add to cart on the backpack
-    // check: the button now says 'Remove'
-    //        hint: check the button you just clicked -
-    //              //button[@id='remove-sauce-labs-backpack'] is now visible
-
+    
     await page.goto('https://www.saucedemo.com/');
 
     const loginPage = new LoginPage(page);
     await loginPage.ValidloginToApplication();
-
-    // Assert login success: user lands on the inventory page
     await expect(page).toHaveURL(/inventory.html/);
-
-    // FIXED: deleted 'const homePage = new HomePage(page);'
-    //        This file never imports HomePage (look at the top - only LoginPage),
-    //        so it crashed with "ReferenceError: HomePage is not defined".
-    //        Nothing used the line anyway.
-
-    await page.click("//button[@id='add-to-cart-sauce-labs-backpack']")
-
-    // FIXED: was toHaveCount(1) = "there is 1 badge on the page".
-    //        That would pass even if the badge showed 9.
-    //        toHaveText('1') = "the badge SAYS 1", which is what we mean.
-    await expect(page.locator('#remove-sauce-labs-backpack')).toHaveText('Remove')
+    const cartpage=new CartPage(page);
+    await cartpage.addToCart('sauce-labs-backpack');
+    await expect(cartpage.getRemoveButton('sauce-labs-backpack')).toHaveText('Remove')
 
 
 });
@@ -91,9 +64,10 @@ test('TC-16 verify the cart badge shows 2 after adding two items', async ({ page
     const loginpage=new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    await page.click("//button[@id='add-to-cart-sauce-labs-backpack']");
-    await page.click("#add-to-cart-sauce-labs-bike-light");
-    await expect(page.locator(".shopping_cart_badge")).toHaveText("2")
+    const cartpage=new CartPage(page);
+    await cartpage.addToCart('sauce-labs-backpack');
+    await cartpage.addToCart('sauce-labs-bike-light');
+    await expect(cartpage.getCartBadge()).toHaveText("2")
 
 
 
@@ -101,18 +75,15 @@ test('TC-16 verify the cart badge shows 2 after adding two items', async ({ page
 
 
 test('TC-17 verify the cart badge disappears after removing the item', async ({ page }) => {
-    // setup: log in, click Add to cart on the backpack
-    // action: click Remove
-    // check: .shopping_cart_badge count is 0
-    //        (the badge is deleted from the page, not just emptied)
-
+   
     await page.goto("https://www.saucedemo.com/");
     const loginpage=new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    await page.click("//button[@id='add-to-cart-sauce-labs-backpack']");
-    await page.click("//button[@id='remove-sauce-labs-backpack']");
-    await expect(page.locator(".shopping_cart_badge")).toHaveCount(0)
+    const cartpage=new CartPage(page);
+    await cartpage.addToCart('sauce-labs-backpack');
+    await cartpage.removeFromCart('sauce-labs-backpack')
+    await expect(cartpage.getCartBadge()).toHaveCount(0)
 });
 
 
@@ -127,12 +98,10 @@ test('TC-30 verify the button text goes back to Add to cart after removing', asy
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-
-    await page.click("//button[@id='add-to-cart-sauce-labs-backpack']");
-    await page.click("//button[@id='remove-sauce-labs-backpack']");
-
-    // Same button, same id, it just relabels itself back to "Add to cart".
-    await expect(page.locator('#add-to-cart-sauce-labs-backpack')).toHaveText('Add to cart');
+    const cartpage=new CartPage(page);
+    await cartpage.addToCart('sauce-labs-backpack');
+    await cartpage.removeFromCart('sauce-labs-backpack');
+    await expect(cartpage.getAddToCartButton('sauce-labs-backpack')).toHaveText('Add to cart');
 });
 
 
@@ -142,13 +111,14 @@ test('TC-31 verify the badge shows 2 after adding 3 items and removing 1', async
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
 
-    await page.click("#add-to-cart-sauce-labs-backpack");
-    await page.click("#add-to-cart-sauce-labs-bike-light");
-    await page.click("#add-to-cart-sauce-labs-bolt-t-shirt");
-    await expect(page.locator(".shopping_cart_badge")).toHaveText("3");
+    const cartpage=new CartPage(page);
+    await cartpage.addToCart('sauce-labs-backpack');
+    await cartpage.addToCart('sauce-labs-bike-light');
+    await cartpage.addToCart('sauce-labs-bolt-t-shirt')
+    await expect(cartpage.getCartBadge()).toHaveText("3");
 
-    await page.click("#remove-sauce-labs-backpack");
-    await expect(page.locator(".shopping_cart_badge")).toHaveText("2");
+    await cartpage.removeFromCart('sauce-labs-backpack');
+    await expect(cartpage.getCartBadge()).toHaveText("2");
 });
 
 
@@ -157,19 +127,100 @@ test('TC-32 verify the badge disappears after adding all 6 items and removing al
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-
-    const addButtons = await page.locator('button.btn_inventory').all();
-    for (const button of addButtons) {
-        await button.click();
+    const cartpage=new CartPage(page);
+    const addButtons = cartpage.getAddToCartButtons();
+    while (await addButtons.count() > 0) {
+        await addButtons.first().click();
     }
-    await expect(page.locator(".shopping_cart_badge")).toHaveText("6");
-
-    // After clicking Add on all 6, the same buttons are now Remove buttons.
-    // Re-select them fresh - the old 'addButtons' list still points at the
-    // right elements, but re-querying is the safer habit to build now.
-    const removeButtons = await page.locator('button.btn_inventory').all();
-    for (const button of removeButtons) {
-        await button.click();
+    await expect(cartpage.getCartBadge()).toHaveText("6");
+    const removeButtons = page.locator('button:has-text("Remove")');
+    while (await removeButtons.count() > 0) {
+        await removeButtons.first().click();
     }
-    await expect(page.locator(".shopping_cart_badge")).toHaveCount(0);
+    await expect(cartpage.getCartBadge()).toHaveCount(0);
+});
+
+// ============================================================
+//  DYNAMIC LOCATOR PRACTICE — scenarios only, write the code.
+//  Goal: get comfortable with locators whose match-count shifts
+//  while you're acting on them, like TC-32 above.
+// ============================================================
+
+test('TC-42 verify all 6 products can be added to cart in a while+first loop', async ({ page }) => {
+    // Same idea as TC-32's first loop, but do it from memory - no peeking.
+    // Log in, then repeatedly click the first remaining "Add to cart" button
+    // until none are left, then assert the badge shows 6.
+    await page.goto("https://www.saucedemo.com/");
+    const loginpage = new LoginPage(page);
+    await loginpage.ValidloginToApplication();
+    await expect(page).toHaveURL(/inventory.html/);
+    const cartpage = new CartPage(page);
+
+    const addButtons = cartpage.getAddToCartButtons();
+    while (await addButtons.count() > 0) {
+        await addButtons.first().click();
+    }
+    await expect(cartpage.getCartBadge()).toHaveText('6');
+});
+
+test('TC-43 verify removing items in a mixed order still lands on the right badge count', async ({ page }) => {
+    // Add all 6 products. Then remove them NOT in the order you added them
+    // (e.g. remove the 3rd one first, then the 1st, then the 5th...).
+    // After each individual removal, assert the badge count matches how
+    // many items should still be left. This is the real test of whether
+    // you're tracking buttons by identity (data-test slug) rather than by
+    // position/index.
+    await page.goto("https://www.saucedemo.com/");
+    const loginpage = new LoginPage(page);
+    await loginpage.ValidloginToApplication();
+    await expect(page).toHaveURL(/inventory.html/);
+    const cartpage = new CartPage(page);
+
+    const slugs = [
+        'sauce-labs-backpack',
+        'sauce-labs-bike-light',
+        'sauce-labs-bolt-t-shirt',
+        'sauce-labs-fleece-jacket',
+        'sauce-labs-onesie',
+        'test.allthethings()-t-shirt-(red)',
+    ];
+
+    for (const slug of slugs) {
+        await cartpage.addToCart(slug);
+    }
+    await expect(cartpage.getCartBadge()).toHaveText('6');
+
+    // Deliberately not the same order as added - proves identity-based
+    // removal, not position-based.
+    const removalOrder = [2, 0, 4, 1, 5, 3];
+    let remaining = slugs.length;
+    for (const index of removalOrder) {
+        await cartpage.removeFromCart(slugs[index]);
+        remaining--;
+        if (remaining > 0) {
+            await expect(cartpage.getCartBadge()).toHaveText(String(remaining));
+        } else {
+            await expect(cartpage.getCartBadge()).toHaveCount(0);
+        }
+    }
+});
+
+test('TC-44 verify the badge count climbs by one on every add, in a growing loop', async ({ page }) => {
+    // Flip TC-42 around: instead of a shrinking "Add to cart" group, loop
+    // while the badge's current number is less than 6, clicking one more
+    // "Add to cart" button each time, and assert the badge text after each
+    // click equals the running count so far (1, then 2, then 3...).
+    await page.goto("https://www.saucedemo.com/");
+    const loginpage = new LoginPage(page);
+    await loginpage.ValidloginToApplication();
+    await expect(page).toHaveURL(/inventory.html/);
+    const cartpage = new CartPage(page);
+
+    const addButtons = cartpage.getAddToCartButtons();
+    let count = 0;
+    while (count < 6) {
+        await addButtons.first().click();
+        count++;
+        await expect(cartpage.getCartBadge()).toHaveText(String(count));
+    }
 });

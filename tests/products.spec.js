@@ -1,23 +1,26 @@
 const { test, expect } = require('@playwright/test');
 const LoginPage = require('../playwright/pages/login-page');
 const HomePage = require('../playwright/pages/home-page');
+const InventoryPage = require('../playwright/pages/inventory-page');
 const { after, before } = require('node:test');
 
 test('TC-01 verify the Products page heading', async ({ page }) => {
     await page.goto('https://www.saucedemo.com/');
     const loginPage = new LoginPage(page);
-    await loginPage.ValidloginToApplication();          
+    await loginPage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    await expect(page.locator('.title')).toContainText('Products');
+    const inventoryPage = new InventoryPage(page);
+    await expect(inventoryPage.getTitle()).toContainText('Products');
 
 });
 
 test('TC-02 verify the cart icon is displayed', async ({ page }) => {
     await page.goto('https://www.saucedemo.com/');
     const loginPage = new LoginPage(page);
-    await loginPage.ValidloginToApplication();          
+    await loginPage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    await expect(page.locator('.shopping_cart_link')).toBeVisible();
+    const inventoryPage=new InventoryPage(page);
+    await expect(inventoryPage.getCartLink()).toBeVisible();
 
 });
 
@@ -26,15 +29,17 @@ test('TC-03 verify six products are listed', async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.ValidloginToApplication();          // FIXED: added the missing login call
     await expect(page).toHaveURL(/inventory.html/);
-    await expect(page.locator('.inventory_item_name')).toHaveCount(6);
+    const inventoryPage=new InventoryPage(page);
+    await expect(inventoryPage.getProductNames()).toHaveCount(6);
 });
 
 test('TC-04 verify the first product is the Sauce Labs Backpack', async ({ page }) => {
     await page.goto('https://www.saucedemo.com/');
-    const loginPage = new LoginPage(page);            
+    const loginPage = new LoginPage(page);
     await loginPage.ValidloginToApplication();          // FIXED: added the missing login call
     await expect(page).toHaveURL(/inventory.html/);
-    await expect(page.locator('.inventory_item_name').first()).toHaveText('Sauce Labs Backpack')
+    const inventoryPage=new InventoryPage(page);
+    await expect(inventoryPage.getProductNames().first()).toHaveText('Sauce Labs Backpack');
 });
 
 
@@ -44,15 +49,16 @@ test('TC-05 verify every product has an image', async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    await expect(page.locator('.inventory_item_img img')).toHaveCount(6);
+    const inventoryPage=new InventoryPage(page);
+    await expect(inventoryPage.getProductImages()).toHaveCount(6);
 });
 
 test('TC-06 verify every product has a price', async ({ page }) => {
      await page.goto("https://www.saucedemo.com/");
      const loginpage=new LoginPage(page);
      await loginpage.ValidloginToApplication();
-     await expect(page).toHaveURL(/inventory.html/);
-     await expect(page.locator('.inventory_item_price')).toHaveCount(6);
+    const inventoryPage=new InventoryPage(page);
+    await expect(inventoryPage.getProductPrices()).toHaveCount(6);
 });
 
 test('TC-07 verify every product has a description', async ({ page }) => {
@@ -60,7 +66,8 @@ test('TC-07 verify every product has a description', async ({ page }) => {
      const loginpage=new LoginPage(page);
      await loginpage.ValidloginToApplication();
      await expect(page).toHaveURL(/inventory.html/);
-     await expect(page.locator('.inventory_item_desc')).toHaveCount(6);
+    const inventoryPage=new InventoryPage(page);
+    await expect(inventoryPage.getProductDescriptions()).toHaveCount(6);
 
 
 });
@@ -70,7 +77,9 @@ test('TC-08 verify every product has an Add to cart button', async ({ page }) =>
      const loginpage=new LoginPage(page);
      await loginpage.ValidloginToApplication();
      await expect(page).toHaveURL(/inventory.html/);
-     await expect(page.locator('.btn_primary')).toHaveCount(6);
+    const inventoryPage=new InventoryPage(page);
+    await expect(inventoryPage.getAddToCartButtons()).toHaveCount(6);
+     
 });
 
 test('TC-09 verify every price starts with a dollar sign', async ({ page }) => {
@@ -80,8 +89,8 @@ test('TC-09 verify every price starts with a dollar sign', async ({ page }) => {
      const loginpage=new LoginPage(page);
      await loginpage.ValidloginToApplication();
      await expect(page).toHaveURL(/inventory.html/);
-   
-    const prices=await page.locator('.inventory_item_price').all();
+     const inventoryPage=new InventoryPage(page);
+    const prices=await inventoryPage.getProductPrices().all();
     for(const price of prices){
         await expect(price).toContainText("$");
     }
@@ -93,11 +102,12 @@ test('TC-10 verify every product has a non-empty description', async ({ page }) 
     const loginpage=new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    const desc=await page.locator('.inventory_item_desc').all();
+    const inventoryPage=new InventoryPage(page);
+    const desc=await inventoryPage.getProductDescriptions().all();
     for(const des of desc){
         await expect(des).toContainText(/.+/);
     }
-   
+
 });
 
 test('TC-11 verify all 6 product names are unique', async ({ page }) => {
@@ -106,7 +116,8 @@ test('TC-11 verify all 6 product names are unique', async ({ page }) => {
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    const name=await page.locator('.inventory_item_name ').allTextContents();
+    const inventoryPage=new InventoryPage(page);
+    const name=await inventoryPage.getProductNames().allTextContents();
     const uniqueNames=new Set(name);
     await expect(uniqueNames.size).toBe(name.length);
 });
@@ -116,15 +127,15 @@ test('TC-12 verify every price is a number greater than 0', async ({ page }) => 
     const loginpage=new LoginPage(page);
      await loginpage.ValidloginToApplication();
      await expect(page).toHaveURL(/inventory.html/);
-
-    const price=await page.locator('.inventory_item_price').all();
+    const inventoryPage=new InventoryPage(page);
+    const price=await inventoryPage.getProductPrices().all();
     for(const pri of price){
         const pr=await pri.textContent();
         const price1=Number(pr.replace('$',''));
         await expect(price1).toBeGreaterThan(0);
     }
 
- 
+
 });
 
 test('TC-13 verify every Add to cart button has the exact same label', async ({ page }) => {
@@ -133,12 +144,13 @@ test('TC-13 verify every Add to cart button has the exact same label', async ({ 
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    const add_to_cart=await page.locator('.btn_primary').all();
+    const inventoryPage=new InventoryPage(page);
+    const add_to_cart=await inventoryPage.getAddToCartButtons().all();
     for(const add of add_to_cart){
         await expect(add).toHaveText('Add to cart');
     }
-    
-  
+
+
 });
 
 
@@ -149,7 +161,8 @@ test('TC-14 verify no product name has leading or trailing whitespace', async ({
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    const pro_name=await page.locator('.inventory_item_name').all();
+    const inventoryPage=new InventoryPage(page);
+    const pro_name=await inventoryPage.getProductNames().all();
     for(const pro of pro_name){
         const text=await pro.textContent();
         await expect(text).toBe(text.trim());
@@ -164,8 +177,9 @@ test('TC-15 verify every product image has a non-empty src attribute', async ({ 
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-   const img=await page.locator('.inventory_item_img img').all();
-   for(const imgs of img){
+     const inventoryPage=new InventoryPage(page);
+    const pro_images=await inventoryPage.getProductImages().all();
+   for(const imgs of pro_images){
     const im=await imgs.getAttribute('src');
     await expect(im).toBeTruthy();
    }
@@ -176,49 +190,42 @@ test('TC-16 verify the number of Add to cart buttons matches the number of produ
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    const products=await page.locator('.inventory_item_name').count();
-    const add_to_cart=await page.locator('.btn_primary').count();
+     const inventoryPage=new InventoryPage(page);
+    const products=await inventoryPage.getProductNames().count();
+    const add_to_cart=await inventoryPage.getAddToCartButtons().count();
     await expect(products).toBe(add_to_cart);
 });
 
 test('TC-17 verify the 6 product prices add up to the expected total', async ({ page }) => {
     // Collect all prices as text, strip the '$', convert to Number, and sum
     // them with .reduce(). Saucedemo's 6 prices should total $129.94.
-   await page.goto("https://www.saucedemo.com/");
+    await page.goto("https://www.saucedemo.com/");
     const loginpage=new LoginPage(page);
      await loginpage.ValidloginToApplication();
      await expect(page).toHaveURL(/inventory.html/);
-     const priceTexts=await page.locator('.inventory_item_price').allTextContents();
+     const inventoryPage=new InventoryPage(page);
+     const priceTexts=await inventoryPage.getProductPrices().allTextContents();
      const prices=priceTexts.map(p=>Number(p.replace('$','')));
-    const total=prices.reduce((sum,p)=>sum+p,0);
+     const total=prices.reduce((sum,p)=>sum+p,0);
      await expect(total).toBeCloseTo(129.94,2);
 
-     const price=await page.locator('.inventory_item_price').allTextContents();
-     const prices1=price.map(p=>Number(p.replace('$','')));
-     const total1=prices1.reduce((sum,p)=>sum+p,0);
-     await expect(total1).toBeCloseTo(129.94,2)
 
 
 });
 
 test('TC-18 verify only 5 unique prices exist among the 6 products', async ({ page }) => {
-    // Same Set trick as TC-11, applied to .inventory_item_price instead of names.
-    // NOTE: saucedemo genuinely has one duplicate price - Bolt T-Shirt and
-    // T.allTheThings() T-Shirt (Red) are both $15.99 - so 6 prices collapse
-    // to 5 unique values. This documents that known quirk rather than
-    // asserting a false "no duplicates" invariant.
-     await page.goto("https://www.saucedemo.com/");
-     const loginpage=new LoginPage(page);
-     await loginpage.ValidloginToApplication();
-     await expect(page).toHaveURL(/inventory.html/);
+   await page.goto("https://www.saucedemo.com/");
+   const loginpage=new LoginPage(page);
+   await loginpage.ValidloginToApplication();
+   await expect(page).toHaveURL(/inventory.html/);
 
-
-   const price = await page.locator('.inventory_item_price').allTextContents();
+   const inventoryPage=new InventoryPage(page);
+   const price = await inventoryPage.getProductPrices().allTextContents();
    const prices=price.map(p=>Number(p.replace('$','')))
    const uniquePrices=new Set(prices);
    await expect(uniquePrices.size).toBe(5)
 
- 
+
 
 
     // Hint: new Set(pricesArray).size should equal pricesArray.length.
@@ -237,12 +244,13 @@ test('TC-19 verify every price matches the exact format $X.XX', async ({ page })
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    const price=await page.locator('.inventory_item_price').all();
+    const inventoryPage=new InventoryPage(page);
+    const price = await inventoryPage.getProductPrices().allTextContents();
     for(const pri of price){
         const text = await pri.textContent();
         expect(text).toMatch(/^\$\d+\.\d{2}$/)
     }
-    
+
 
     // Hint: expect(text).toMatch(/^\$\d+\.\d{2}$/)
 });
@@ -255,7 +263,8 @@ test('TC-20 verify every Add to cart button is enabled', async ({ page }) => {
      const loginpage=new LoginPage(page);
      await loginpage.ValidloginToApplication();
      await expect(page).toHaveURL(/inventory.html/);
-     const add_to_cart=await page.locator('.btn_primary').all();
+    const inventoryPage=new InventoryPage(page);
+     const add_to_cart=await inventoryPage.getAddToCartButtons().all();
      for(const button of add_to_cart){
         await expect(button).toBeEnabled();
      }
@@ -268,7 +277,8 @@ test('TC-21 verify no two product descriptions are identical', async ({ page }) 
    const loginpage=new LoginPage(page);
    await loginpage.ValidloginToApplication();
    await expect(page).toHaveURL(/inventory.html/);
-   const des = await page.locator('.inventory_item_desc').allTextContents();
+   const inventoryPage=new InventoryPage(page);
+   const des = await inventoryPage.getAddToCartButtons().allTextContents();
    const uniquedes=new Set(des);
    expect(uniquedes.size).toBe(des.length);
 
@@ -279,8 +289,9 @@ test('TC-22 verify each image\'s alt text matches its product name', async ({ pa
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    const names = await page.locator('.inventory_item_name').allTextContents();
-    const imges = await page.locator('.inventory_item_img img').all();
+    const inventoryPage=new InventoryPage(page);
+    const names = await inventoryPage.getProductNames().allTextContents();
+    const imges = await inventoryPage.getProductImages().all();
     for (let i=0;i<names.length;i++){
         const alt=await imges[i].getAttribute('alt');
         expect(alt).toBe(names[i]);
@@ -292,8 +303,8 @@ test('TC-23 verify every Add to cart button has a unique data-test attribute', a
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-
-   const buttons=await page.locator('btn_primary').all();
+   const inventoryPage=new InventoryPage(page);
+   const buttons=await inventoryPage.getAddToCartButtons().all();
    const datasetIds=[]
    for (const btn of buttons){
     const dt=await btn.getAttribute('data-test');
@@ -310,27 +321,24 @@ test('TC-24 verify none of the 6 product names start with a lowercase letter', a
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-
-    const names = await page.locator('.inventory_item_name').allTextContents();
+    const inventoryPage=new InventoryPage(page);
+    const names = await inventoryPage. getProductNames().allTextContents();
     for (const name of names) {
         expect(name).toMatch(/^[A-Z]/);
     }
 });
 
 test('TC-25 verify clicking one Add to cart button does not change the other 5', async ({ page }) => {
-    // Read all 6 button texts BEFORE clicking, click just one, read all 6 AGAIN,
-    // then check the other 5 are still "Add to cart".
-
     await page.goto('https://www.saucedemo.com/');
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    const buttons = page.locator('.btn_inventory');
-    const before = await buttons.allTextContents();
+    const inventory_page=new InventoryPage(page);
+    const before = await inventory_page.getAddToCartButtons().allTextContents();
 
     await buttons.nth(0).click();
 
-    const after = await buttons.allTextContents();
+    const after = await inventory_page.getAddToCartButtons().allTextContents();
 
     expect(after[0]).toBe('Remove');
    for (let i = 1; i < before.length; i++) {
@@ -346,8 +354,9 @@ test('TC-26 verify the button for a just-added product shows exactly Remove', as
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    await page.locator("//button[@id='add-to-cart-sauce-labs-bolt-t-shirt']").click();
-    await expect(page.locator("//button[@id='remove-sauce-labs-bolt-t-shirt']")).toHaveText('Remove')
+    const inventory_page= new InventoryPage(page);
+    await inventory_page.getAddToCartButton('sauce-labs-backpack').click();
+    await expect(inventory_page.getRemoveButton('sauce-labs-backpack')).toHaveText('Remove')
 });
 
 test('TC-27 verify the 6 products stay in the same order after reloading the page', async ({ page }) => {
@@ -357,10 +366,11 @@ test('TC-27 verify the 6 products stay in the same order after reloading the pag
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    const before=await page.locator('.inventory_item_name ').allTextContents();
+    const inventory_page=new InventoryPage(page);
+    const before=await inventory_page.getProductNames().allTextContents();
     await page.reload();
     await expect(page).toHaveURL(/inventory.html/);
-    const after=await page.locator('.inventory_item_name ').allTextContents();
+    const after=await inventory_page.getProductNames().allTextContents();
     await expect(after).toEqual(before);
 
 });
@@ -372,7 +382,8 @@ test('TC-28 verify the cart badge is not visible before anything is added', asyn
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-    await expect(page.locator('.shopping_cart_badge')).toHaveCount(0);
+    const inventory_page=new InventoryPage(page);
+    await expect(inventory_page.getCartBadge()).toHaveCount(0);
 
     // Hint: same rule as TC-17 in TEST-PLAN.md Day 4 - toHaveCount(0) says it best.
 });
@@ -386,8 +397,8 @@ test('TC-29 verify every product description is longer than 20 characters', asyn
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-
-    const desc=await page.locator('.inventory_item_desc').all();
+    const inventory_page=new InventoryPage(page);
+    const desc=await inventory_page.getProductDescriptions().all();
     for(const des of desc){
         const texts=await des.textContent();
         await expect(texts.length).toBeGreaterThan(20);
@@ -402,15 +413,15 @@ test('TC-30 verify no product name contains the word "undefined" or "null"', asy
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-
-    const desc=await page.locator('.inventory_item_name').all();
+    const inventory_page=new InventoryPage(page);
+    const desc=await inventory_page.getProductNames().all();
     for(const des of desc){
         const texts=await des.textContent();
         await expect(texts).not.toContain('undefined');
         await expect(texts).not.toContain('null');
     }
 
-    
+
 });
 
 test('TC-31 verify the Add to cart buttons are in the same left-to-right order as the product names', async ({ page }) => {
@@ -423,19 +434,9 @@ test('TC-31 verify the Add to cart buttons are in the same left-to-right order a
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
 
-    // const names = await page.locator('.inventory_item_name').allTextContents();
-    // const buttons = await page.locator('.btn_primary').all();
-
-    // for (let i = 0; i < names.length; i++) {
-    //     // "Sauce Labs Backpack" -> "sauce-labs-backpack", to match the
-    //     // slug format saucedemo uses inside each button's data-test id.
-    //     const slug = names[i].toLowerCase().replace(/\s+/g, '-');
-    //     const dataTest = await buttons[i].getAttribute('data-test');
-    //     expect(dataTest).toContain(slug);
-    // }
-
-    const names=await page.locator('.inventory_item_name').allTextContents();
-    const buttons=await page.locator('.btn_primary').all();
+    const inventory_page=new InventoryPage(page);
+    const names=await inventory_page.getProductNames().allTextContents();
+    const buttons=await inventory_page.getAddToCartButtons().all();
     for(let i=0;i<names.length;i++){
         const slug=names[i].toLowerCase().replace(/\s+/g,'-');
         const dataTest=await buttons[i].getAttribute('data-test');
@@ -449,20 +450,11 @@ test('TC-32 verify each product card has exactly one name and one price inside i
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
+    const inventory_page=new InventoryPage(page);
 
-    // const cardCount = await page.locator('.inventory_item').count();
-
-    // for (let i = 0; i < cardCount; i++) {
-    //     // Scoping a locator to just THIS card - card.locator(...) only
-    //     // searches inside this one element, not the whole page.
-    //     const card = page.locator('.inventory_item').nth(i);
-    //     await expect(card.locator('.inventory_item_name')).toHaveCount(1);
-    //     await expect(card.locator('.inventory_item_price')).toHaveCount(1);
-    // }
-
-    const cardCount=await page.locator('.inventory_item').count();
+    const cardCount=await inventory_page.getProductCards().count();
     for(let i=0;i<cardCount;i++){
-        const card=page.locator('.inventory_item').nth(i);
+        const card=inventory_page.getProductCards().nth(i);
         await expect(card.locator('.inventory_item_name')).toHaveCount(1);
         await expect(card.locator('.inventory_item_price')).toHaveCount(1);
     }
@@ -478,16 +470,15 @@ test('TC-33 verify removing then re-adding the same item still shows a badge of 
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-
-    // await page.click('[data-test="add-to-cart-sauce-labs-backpack"]');
-    // await page.click('[data-test="remove-sauce-labs-backpack"]');
-    // await page.click('[data-test="add-to-cart-sauce-labs-backpack"]');
-
-    // await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
-    await page.click("//button[@id='add-to-cart-sauce-labs-backpack']");
-    await page.click("//button[@id='remove-sauce-labs-backpack']");
-    await page.click("//button[@id='add-to-cart-sauce-labs-backpack']");
-    await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
+    const inventory_page=new InventoryPage(page);
+    // await page.click(inventory_page.getAddToCartButton('sauce-labs-backpack'));
+    // await page.click(inventory_page.getRemoveButton('sauce-labs-backpack'));
+    // await page.click(inventory_page.getAddToCartButton('sauce-labs-backpack'));
+    await inventory_page.getAddToCartButton('sauce-labs-backpack').click();
+    await inventory_page.getRemoveButton('sauce-labs-backpack').click();
+    await inventory_page.getAddToCartButton('sauce-labs-backpack').click();
+    // await expect(inventory_page.cartBadge()).toHaveText('1');
+    await expect(inventory_page.getCartBadge()).toHaveText('1');
 });
 
 test('TC-34 verify the cart badge never displays the text "0"', async ({ page }) => {
@@ -495,19 +486,10 @@ test('TC-34 verify the cart badge never displays the text "0"', async ({ page })
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-
-    // Add one item, then remove it - if the badge were ever going to show
-    // "0" instead of disappearing, this is the moment it would happen.
-    // await page.click('[data-test="add-to-cart-sauce-labs-backpack"]');
-    // await page.click('[data-test="remove-sauce-labs-backpack"]');
-
-    // // Same rule as TC-28: saucedemo deletes the badge element entirely
-    // // when the cart is empty, rather than showing it with "0" inside.
-    // await expect(page.locator('.shopping_cart_badge')).toHaveCount(0);
-
-    await page.click("//button[@id='add-to-cart-sauce-labs-backpack']");
-    await page.click("//button[@id='remove-sauce-labs-backpack']");
-    await expect(page.locator('.shopping_cart_badge')).toHaveCount(0)
+    const inventory_page=new InventoryPage(page);
+    await inventory_page.getAddToCartButton('sauce-labs-backpack').click();
+    await inventory_page.getRemoveButton('sauce-labs-backpack').click();
+    await expect(inventory_page.getCartBadge()).toHaveCount(0)
 });
 
 test('TC-35 verify the 6 product names are still unique even when compared case-insensitively', async ({ page }) => {
@@ -515,14 +497,6 @@ test('TC-35 verify the 6 product names are still unique even when compared case-
     const loginpage = new LoginPage(page);
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
-
-    // const names = await page.locator('.inventory_item_name').allTextContents();
-
-    
-    // const lowerNames = names.map(name => name.toLowerCase());
-    // const uniqueNames = new Set(lowerNames);
-    // expect(uniqueNames.size).toBe(lowerNames.length);
-
     const names=await page.locator('.inventory_item_name').allTextContents();
     const lowerNames=names.map(p=>p.toLowerCase());
     const uniquesNames=new Set(lowerNames);
@@ -535,9 +509,6 @@ test('TC-36 verify a products Add to cart button becomes Remove immediately afte
     await loginpage.ValidloginToApplication();
     await expect(page).toHaveURL(/inventory.html/);
 
-    // No page.reload() anywhere here - just click, then check the SAME
-    // button immediately. If it updates without a refresh, the site is
-    // handling this client-side (React re-render), not a full page load.
     await page.click('[data-test="add-to-cart-sauce-labs-bike-light"]');
     await expect(page.locator('[data-test="remove-sauce-labs-bike-light"]')).toHaveText('Remove');
 });
