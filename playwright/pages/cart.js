@@ -7,12 +7,28 @@ class CartPage {
         this.cartBadge = '.shopping_cart_badge';
         this.productCard = '.inventory_item';
         this.productName = '.inventory_item_name';
+        this.cartItemName = '.cart_item .inventory_item_name';
         this.productDesc = '.inventory_item_desc';
         this.productPrice = '.inventory_item_price';
+        this.cartItemPrice = '.cart_item .inventory_item_price';
         this.productImage = '.inventory_item_img img';
         this.addToCartButton = '.btn_primary';
         this.inventoryButton = '.btn_inventory';
-        this.cancelbutton
+        this.continueButton="//button[@id='continue-shopping']";
+        this.checkoutButton="//button[@id='checkout']"
+    }
+    getPrice(){
+        return this.page.locator(this.productPrice)
+    }
+
+    getCartItemPrice(){
+        return this.page.locator(this.cartItemPrice)
+    }
+    getCheckout(){
+        return this.page.locator(this.checkoutButton);
+    }
+    getContinue(){
+        return this.page.locator(this.continueButton);
     }
     getTitle() {
         return this.page.locator(this.title);
@@ -36,6 +52,10 @@ class CartPage {
 
     getProductNames() {
         return this.page.locator(this.productName);
+    }
+
+    getCartItemNames() {
+        return this.page.locator(this.cartItemName);
     }
 
     getProductDescriptions() {
@@ -66,7 +86,7 @@ class CartPage {
         return this.page.locator(`[data-test="remove-${productSlug}"]`);
     }
 
-    // ----- actions -----
+
 
     async addToCart(productSlug) {
         await this.page.click(`[data-test="add-to-cart-${productSlug}"]`);
